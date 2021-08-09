@@ -1,20 +1,20 @@
 import { useState, useRef } from 'react';
 import keyGen from '../helpers/keyGen.js';
 
-function List({ items, remove }) {
+function List({ render, items, remove }) {
 
-    return (
+    return (typeof render !== 'function') ? (
         <ul>
             {items.map((item, index) => <li key={item.k}><b>[{item.k}] {index}</b> {item.item} <button onClick={() => remove(index)}>x</button></li>)}
         </ul>
-    )
+    ) : render(items, remove)
 }
 
 function ListContainer({ list }) {
     let [items, setItems] = useState(list.map((item, k) => ({ item, k })));
     let [keyCount] = useState(keyGen('', items.length));
 
-    const newItem = useRef(null);
+    const newItem = useRef([]);
 
     const remove = (index) => {
         let newState = [...items];
@@ -41,15 +41,21 @@ function ListContainer({ list }) {
         setItems(newState);
     }
 
+    const kps = Object.keys(items[0]);
+
     return (
         <div>
             <List items={items} remove={remove} />
             <div>Add:<input name='newitem' ref={newItem} /><button onClick={() => add(newItem.current)}>+</button></div>
             <div>
-                <button onClick={() => { sortUp('item'); }}>Sort Up </button>
-                <button onClick={() => { sortDown('item'); }}>Sort Down</button>
-                <button onClick={() => { sortUp('k'); }}>Sort Up [id]</button>
-                <button onClick={() => { sortDown('k'); }}>Sort Down[id]</button>
+                {
+                    kps.map((keyName) =>
+                        <>
+                            <button onClick={() => { sortUp(keyName); }}>Sort Up [{keyName}] </button>
+                            <button onClick={() => { sortDown(keyName); }}>Sort Down [{keyName}]</button>
+                        </>
+                    )
+                }
             </div>
         </div>
     );
