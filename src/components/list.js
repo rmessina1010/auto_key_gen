@@ -32,12 +32,12 @@ function ListContainer({ list }) {
     }
     const sortDown = (ky) => {
         let newState = [...items];
-        newState.sort((a, b) => a[ky] < b[ky]);
+        newState.sort((a, b) => a[ky] === b[ky] ? 0 : (a[ky] > b[ky] ? 1 : -1));
         setItems(newState);
     }
     const sortUp = (ky) => {
         let newState = [...items];
-        newState.sort((a, b) => a[ky] > b[ky]);
+        newState.sort((a, b) => b[ky] === a[ky] ? 0 : (a[ky] > b[ky] ? -1 : 1));
         setItems(newState);
     }
 
