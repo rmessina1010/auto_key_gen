@@ -15,6 +15,9 @@ function ListContainer({ list }) {
     let [keyCount] = useState(keyGen('', items.length));
 
     const newItem = useRef([]);
+    const isItemObj = typeof items[0].item === 'object';
+    const itemKeys = isItemObj ? Object.keys(items[0].item) : ['item'];
+    const newItemEls = itemKeys.map((kname, i) => <label><input name={'new' + kname} ref={(el) => (newItem.current[i] = el)} /></label>);
 
     const remove = (index) => {
         let newState = [...items];
@@ -23,12 +26,18 @@ function ListContainer({ list }) {
     }
 
     const add = (el) => {
-        let item = el.value;
-        if (item.trim() === '') { return; }
+        let isBlank = true;
+        let item = itemKeys.reduce((acc, k, i) => {
+            acc[k] = el[i].value;
+            if (isBlank && acc[k].trim() !== '') { isBlank = false }
+            return acc;
+        }, {});
+        if (isBlank) { return; }
+        if (!isItemObj) { item = item.item; }
         let newItem = { item, k: keyCount.next().value }
         let newState = [...items, newItem];
         setItems(newState);
-        el.value = '';
+        el.forEach(ele => ele.value = '');
     }
     const sortDown = (ky) => {
         let newState = [...items];
@@ -46,7 +55,7 @@ function ListContainer({ list }) {
     return (
         <div>
             <List items={items} remove={remove} />
-            <div>Add:<input name='newitem' ref={newItem} /><button onClick={() => add(newItem.current)}>+</button></div>
+            <div>Add:{newItemEls}<button onClick={() => add(newItem.current)}>+</button></div>
             <div>
                 {
                     kps.map((keyName) =>
