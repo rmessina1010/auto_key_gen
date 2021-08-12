@@ -27,7 +27,7 @@ function ObjectList(items, remove) {
 function App() {
   return (
     <div className="App">
-      <ListContainer list={theData2} render={null} />
+      <ListContainer list={theData} render={ObjectList} />
     </div>
   );
 }

@@ -13,7 +13,7 @@ function List({ render, items, remove }) {
 
 function ListContainer({ list, render }) {
     let [items, setItems] = useState(list.map((item, k) => ({ item, k })));
-    let [keyCount] = useState(keyGen('', items.length));
+    let [keyCount] = useState(keyGen(items.length));
 
     const newItem = useRef([]);
     const isItemObj = typeof items[0].item === 'object';
