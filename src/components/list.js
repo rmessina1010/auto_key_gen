@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import keyGen from '../helpers/keyGen.js';
 
 function List({ render, items, remove }) {
-
     return (typeof render !== 'function') ? (
         <ul>
             {items.map((item, index) => <li key={item.k}><b>[{item.k}] {index}</b> {item.item} <button onClick={() => remove(index)}>x</button></li>)}
@@ -10,14 +9,16 @@ function List({ render, items, remove }) {
     ) : render(items, remove)
 }
 
-function ListContainer({ list }) {
+
+
+function ListContainer({ list, render }) {
     let [items, setItems] = useState(list.map((item, k) => ({ item, k })));
     let [keyCount] = useState(keyGen('', items.length));
 
     const newItem = useRef([]);
     const isItemObj = typeof items[0].item === 'object';
     const itemKeys = isItemObj ? Object.keys(items[0].item) : ['item'];
-    const newItemEls = itemKeys.map((kname, i) => <label><input name={'new' + kname} ref={(el) => (newItem.current[i] = el)} /></label>);
+    const newItemEls = itemKeys.map((kname, i) => <label key={i}><input name={'new' + kname} ref={(el) => (newItem.current[i] = el)} /></label>);
 
     const remove = (index) => {
         let newState = [...items];
@@ -54,7 +55,7 @@ function ListContainer({ list }) {
 
     return (
         <div>
-            <List items={items} remove={remove} />
+            <List items={items} remove={remove} render={render} />
             <div>Add:{newItemEls}<button onClick={() => add(newItem.current)}>+</button></div>
             <div>
                 {
