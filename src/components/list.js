@@ -18,7 +18,13 @@ function ListContainer({ list, render }) {
     const newItem = useRef([]);
     const isItemObj = typeof items[0].item === 'object';
     const itemKeys = isItemObj ? Object.keys(items[0].item) : ['item'];
-    const newItemEls = itemKeys.map((kname, i) => <label key={i}><input name={'new' + kname} ref={(el) => (newItem.current[i] = el)} /></label>);
+    const newItemEls = itemKeys.map((kname, i) => <label key={i}>{kname}:<input name={'new' + kname} ref={(el) => (newItem.current[i] = el)} /> </label>);
+    const sortItemEls = itemKeys.map((kname, i) =>
+        <>
+            <button key={2 * i} onClick={() => { sortUp(kname); }}>Sort Up [{kname}] </button>
+            <button key={2 * i + 1} onClick={() => { sortDown(kname); }}>Sort Down [{kname}]</button>
+        </>
+    );
 
     const remove = (index) => {
         let newState = [...items];
@@ -42,30 +48,35 @@ function ListContainer({ list, render }) {
     }
     const sortDown = (ky) => {
         let newState = [...items];
-        newState.sort((a, b) => a[ky] === b[ky] ? 0 : (a[ky] > b[ky] ? 1 : -1));
+        newState.sort((a, b) => {
+            if (isItemObj && ky !== 'k') {
+                a = a.item;
+                b = b.item;
+            }
+            return a[ky] === b[ky] ? 0 : (a[ky] > b[ky] ? -1 : 1)
+        });
         setItems(newState);
     }
     const sortUp = (ky) => {
         let newState = [...items];
-        newState.sort((a, b) => b[ky] === a[ky] ? 0 : (a[ky] > b[ky] ? -1 : 1));
+        newState.sort((a, b) => {
+            if (isItemObj && ky !== 'k') {
+                a = a.item;
+                b = b.item;
+            }
+            return a[ky] === b[ky] ? 0 : (a[ky] > b[ky] ? 1 : -1)
+        });
         setItems(newState);
     }
-
-    const kps = Object.keys(items[0]);
 
     return (
         <div>
             <List items={items} remove={remove} render={render} />
-            <div>Add:{newItemEls}<button onClick={() => add(newItem.current)}>+</button></div>
+            <div><b>Add </b>{newItemEls}<button onClick={() => add(newItem.current)}>+</button></div>
             <div>
-                {
-                    kps.map((keyName) =>
-                        <>
-                            <button onClick={() => { sortUp(keyName); }}>Sort Up [{keyName}] </button>
-                            <button onClick={() => { sortDown(keyName); }}>Sort Down [{keyName}]</button>
-                        </>
-                    )
-                }
+                <button onClick={() => { sortUp('k'); }}>Sort Up [key] </button>
+                <button onClick={() => { sortDown('k'); }}>Sort Down [key]</button>
+                {sortItemEls}
             </div>
         </div>
     );
